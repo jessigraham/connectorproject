@@ -24,7 +24,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400;1,9..144,500&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
-<link rel="preload" href="assets/brand-chime-cinematic.mp3" as="audio" />
+<link rel="preload" href="assets/welcome-sequence.mp3" as="audio" />
 <script>document.documentElement.classList.replace("no-js","js");</script>
 
 <!-- Light analytics. Uncomment and set the domain to turn on Plausible (no cookies, no banner needed).
@@ -562,8 +562,8 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between}
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-<audio id="chime" src="assets/brand-chime-cinematic.mp3" preload="auto"></audio>
-<audio id="voice" src="assets/welcome-jessi.mp3" preload="auto"></audio>
+<!-- One file: chime, a short gap, then Jessi. One play() call keeps iPhone timing exact. -->
+<audio id="seq" src="assets/welcome-sequence.mp3" preload="auto" playsinline></audio>
 
 <script>
 /* ============================================================
@@ -573,9 +573,9 @@ const CONFIG = {
   callUrl: "#",                    // TODO: Jessi's booking link (Calendly or similar)
   welcomeLine: "Hey! We’re so glad you made it! Someone thought of you for this, and we think they’re right.",
   welcomeSpeaker: "Jessi, Ascend",
-  chimeSeconds: 4.4,               // brand-chime-cinematic.mp3
-  voiceGapSeconds: 0.1,            // pause between chime tail and voice
-  wordsPerSecondFallback: 3.2      // caption pace when the voice file is missing
+  chimeSeconds: 4.4,               // length of the chime inside welcome-sequence.mp3
+  voiceStartsAt: 4.55,             // where Jessi starts speaking in welcome-sequence.mp3
+  voiceSeconds: 4.92               // length of Jessi's line
 };
 
 /* ---------- Light analytics: Plausible or GA if present, otherwise console ---------- */
@@ -591,8 +591,7 @@ function track(name, props){
   const html = document.documentElement;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const arrival = document.getElementById("arrival");
-  const chime = document.getElementById("chime");
-  const voice = document.getElementById("voice");
+  const seq = document.getElementById("seq");
   const toggle = document.getElementById("soundToggle");
   const welcome = document.getElementById("welcome");
   const caption = document.getElementById("caption");
@@ -623,7 +622,7 @@ function track(name, props){
   function setToggle(){
     toggle.setAttribute("aria-pressed", String(!muted));
     toggle.setAttribute("aria-label", muted ? "Sound off. Tap to turn on." : "Sound on. Tap to mute.");
-    chime.muted = muted; voice.muted = muted;
+    seq.muted = muted;
   }
   toggle.addEventListener("click", () => {
     muted = !muted; setToggle();
@@ -631,24 +630,38 @@ function track(name, props){
     track("Sound Toggle", {muted: muted});
   });
 
-  let voiceOk = true;
-  voice.addEventListener("error", () => { voiceOk = false; });
+  let seqOk = true;
+  seq.addEventListener("error", () => { seqOk = false; });
 
-  function speak(){
-    welcome.classList.add("show", "speaking");
-    let dur = words.length / CONFIG.wordsPerSecondFallback;
-    if (voiceOk && !muted){
-      voice.currentTime = 0;
-      voice.play().then(() => {
-        if (isFinite(voice.duration) && voice.duration > 0) dur = voice.duration;
-        runCaption(dur);
-      }).catch(() => runCaption(dur));
-    } else runCaption(dur);
+  /* Caption. With sound, it follows the audio's own clock, so it cannot drift from Jessi's voice.
+     Without sound, it runs on a timer at the same pace. */
+  let captionRaf = 0;
+  function litUpTo(fraction){
+    const n = Math.ceil(Math.max(0, Math.min(1, fraction)) * spans.length);
+    spans.forEach((sp, i) => sp.classList.toggle("lit", i < n));
   }
-  function runCaption(dur){
-    const step = (dur * 1000) / spans.length;
-    spans.forEach((s, i) => setTimeout(() => s.classList.add("lit"), i * step));
-    setTimeout(() => welcome.classList.remove("speaking"), dur * 1000 + 300);
+  function followAudio(){
+    const t = seq.currentTime;
+    if (t >= CONFIG.voiceStartsAt - 0.05){
+      welcome.classList.add("show", "speaking");
+      litUpTo((t - CONFIG.voiceStartsAt) / CONFIG.voiceSeconds + 0.06);
+    }
+    if (seq.ended || t >= CONFIG.voiceStartsAt + CONFIG.voiceSeconds){
+      litUpTo(1); welcome.classList.add("show"); welcome.classList.remove("speaking"); return;
+    }
+    captionRaf = requestAnimationFrame(followAudio);
+  }
+  function captionOnTimer(){
+    setTimeout(() => {
+      welcome.classList.add("show", "speaking");
+      const t0 = performance.now();
+      const tick = now => {
+        const f = (now - t0) / 1000 / CONFIG.voiceSeconds;
+        litUpTo(f + 0.06);
+        if (f < 1) requestAnimationFrame(tick); else welcome.classList.remove("speaking");
+      };
+      requestAnimationFrame(tick);
+    }, CONFIG.voiceStartsAt * 1000);
   }
 
   /* ---------- Arrival sequence ---------- */
@@ -663,8 +676,18 @@ function track(name, props){
       html.classList.remove("playing"); html.classList.add("arrived");
       arrival.setAttribute("aria-hidden", "true");
     }, total * 1000);
-    setTimeout(speak, (CONFIG.chimeSeconds + CONFIG.voiceGapSeconds) * 1000);
+    if (withSound && seqOk) captionRaf = requestAnimationFrame(followAudio);
+    else captionOnTimer();
     track("Arrival", {sound: withSound && !muted});
+  }
+
+  // Start the visuals the moment sound is actually coming out, not when play() was asked for.
+  // (Safari can take a beat to start; this keeps the pulse on the chime.)
+  function beginWhenPlaying(){
+    let done = false;
+    const go = () => { if (done) return; done = true; seq.removeEventListener("playing", go); begin(true); };
+    seq.addEventListener("playing", go);
+    setTimeout(go, 700);
   }
 
   function showTap(){
@@ -673,32 +696,41 @@ function track(name, props){
     document.getElementById("tapStart").focus({preventScroll: true});
   }
 
-  // Try to play the chime the instant the page loads.
+  // Try to play the moment the page loads. If the browser blocks sound, rest on "Tap to begin".
   function attempt(){
-    if (muted){ showTap(); return; }
-    let settled = false;
-    const p = chime.play();
-    if (p && p.then){
-      p.then(() => { settled = true; begin(true); })
-       .catch(() => { settled = true; showTap(); });
-      setTimeout(() => { if (!settled){ chime.pause(); showTap(); } }, 1500);
-    } else showTap();
+    if (muted || !seqOk){ showTap(); return; }
+    let settled = false, gaveUp = false;
+    const p = seq.play();
+    if (!p || !p.then){ showTap(); return; }
+    p.then(() => {
+      settled = true;
+      if (gaveUp || started){ seq.pause(); seq.currentTime = 0; return; }
+      beginWhenPlaying();
+    }).catch(() => { settled = true; showTap(); });
+    setTimeout(() => {
+      if (!settled){ gaveUp = true; seq.pause(); seq.currentTime = 0; showTap(); }
+    }, 1500);
   }
 
-  // Blocked path: first touch anywhere fires chime, pulse and welcome together.
+  // Blocked path: the first touch plays the one sequence file; chime, pulse and welcome stay together.
   function startFromGesture(e){
     if (started) return;
     if (e && e.target && e.target.id === "quietStart") return;
-    if (!muted){ chime.currentTime = 0; chime.play().catch(() => {}); }
-    // Unlock the voice element inside the same gesture so it can play later on iOS.
-    if (voiceOk && !muted){ voice.play().then(() => { voice.pause(); voice.currentTime = 0; }).catch(() => {}); }
-    begin(!muted);
+    if (muted || !seqOk){ begin(false); return; }
+    seq.pause(); seq.currentTime = 0;
+    const p = seq.play();
+    if (p && p.catch) p.catch(() => {
+      // Sound refused after all: carry on silently with the timed caption.
+      seqOk = false; cancelAnimationFrame(captionRaf);
+      if (started) captionOnTimer(); else begin(false);
+    });
+    beginWhenPlaying();
   }
   arrival.addEventListener("click", startFromGesture);
   document.addEventListener("keydown", e => {
     if (!started && arrival.classList.contains("blocked") && (e.key === "Enter" || e.key === " ")){ e.preventDefault(); startFromGesture(e); }
   });
-  document.getElementById("quietStart").addEventListener("click", e => { e.stopPropagation(); begin(false); });
+  document.getElementById("quietStart").addEventListener("click", e => { e.stopPropagation(); seq.pause(); begin(false); });
 
   // Returning visitors in the same tab skip the arrival.
   let seen = false;
