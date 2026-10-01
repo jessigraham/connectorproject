@@ -381,7 +381,7 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between}
       <h1 id="h-hero"><span class="word" style="animation-delay:.1s">We</span> <span class="word" style="animation-delay:.3s">want</span> <span class="word accent" style="animation-delay:.6s">you.</span></h1>
       <p class="lead reveal">Get paid to connect good businesses with a team that tells the truth. We hand you the leads and do all the heavy lifting.</p>
       <div class="hero-ctas reveal">
-        <a class="btn btn-pulse js-call" data-where="hero" href="#">Schedule a call with Jessi <span class="arr" aria-hidden="true">&rarr;</span></a>
+        <a class="btn btn-pulse js-call" data-where="hero" href="#">Schedule a call <span class="arr" aria-hidden="true">&rarr;</span></a>
         <a class="btn btn-ghost" href="#earn">See what you could earn <span class="arr" aria-hidden="true">&darr;</span></a>
       </div>
       <div class="welcome" id="welcome" aria-live="polite">
@@ -535,14 +535,14 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between}
     <div class="wrap">
       <p class="kicker mono reveal"><b>07</b> Your next step</p>
       <h2 id="h-cta" class="reveal">Want <em>in?</em></h2>
-      <p class="lead reveal">If you made it this far, you&rsquo;re curious. Trust that. Schedule a direct call with Jessi: a real conversation, no pressure. If it&rsquo;s a fit, she&rsquo;ll walk you through the full demo.</p>
+      <p class="lead reveal">If you made it this far, you&rsquo;re curious. Trust that. Schedule a direct call with our team: a real conversation, no pressure. If it&rsquo;s a fit, we&rsquo;ll walk you through the full demo.</p>
       <div class="cta-row reveal">
-        <a class="btn btn-pulse js-call" data-where="cta" href="#">Schedule a call with Jessi <span class="arr" aria-hidden="true">&rarr;</span></a>
+        <a class="btn btn-pulse js-call" data-where="cta" href="#">Schedule a call <span class="arr" aria-hidden="true">&rarr;</span></a>
       </div>
       <div class="next reveal">
         <p class="next-label mono">Where this goes</p>
         <ol>
-          <li class="here">This page</li><li>A call with Jessi</li><li>The demo</li><li>If it&rsquo;s a fit, you&rsquo;re in</li>
+          <li class="here">This page</li><li>A quick call</li><li>The demo</li><li>If it&rsquo;s a fit, you&rsquo;re in</li>
         </ol>
       </div>
       <div class="share reveal">
@@ -605,7 +605,7 @@ function track(name, props){
     if (url !== "#"){ a.target = "_blank"; a.rel = "noopener"; }
     a.addEventListener("click", e => {
       track("Call Click", {where: a.dataset.where});
-      if (CONFIG.callUrl === "#"){ e.preventDefault(); toast("Jessi\u2019s booking link goes here once it is live."); }
+      if (CONFIG.callUrl === "#"){ e.preventDefault(); toast("The booking link goes here once it is live."); }
     });
   });
 
