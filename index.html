@@ -204,16 +204,16 @@ html.js .reveal.in{opacity:1;transform:none}
 
 /* Honesty */
 .honest{display:grid;gap:48px;align-items:center}
-.five{display:flex;gap:clamp(10px,2.5vw,20px);justify-content:flex-start}
-.five .d{width:clamp(48px,11vw,84px);aspect-ratio:1;border-radius:50%;background:var(--moss);opacity:.85;display:grid;place-items:center;color:var(--bone);font-family:var(--font-mono);font-size:.62rem;letter-spacing:.08em;line-height:1.15;text-align:center;transition:transform .5s var(--ease)}
-.five .d.no{background:transparent;box-shadow:inset 0 0 0 2px var(--pulse);color:var(--pulse);opacity:1}
-.honest.in .five .d.no{animation:nod 2.8s var(--ease) .6s infinite}
-@keyframes nod{0%,60%,100%{box-shadow:inset 0 0 0 2px var(--pulse),0 0 0 0 rgba(255,77,46,.35)}30%{box-shadow:inset 0 0 0 2px var(--pulse),0 0 0 14px rgba(255,77,46,0)}}
-.five-key{display:flex;gap:22px;margin-top:16px;font-size:.84rem;color:var(--steel)}
-.five-key i{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--moss);margin-right:8px;vertical-align:-1px}
-.five-key i.n{background:none;box-shadow:inset 0 0 0 2px var(--pulse)}
-.stat-1in5{font-family:var(--font-display);font-size:clamp(4.5rem,14vw,8rem);line-height:.9;color:var(--deep);letter-spacing:-.04em;margin-bottom:18px}
-.stat-1in5 em{font-style:italic;font-weight:400;color:var(--pulse)}
+.honest-h{font-size:clamp(2.4rem,6.6vw,4.4rem);line-height:1;letter-spacing:-.03em}
+.answers{display:grid;gap:12px}
+.answer{padding:22px 24px;border-radius:var(--radius);background:var(--paper);box-shadow:inset 0 0 0 1px var(--line)}
+.answer .mono{color:var(--steel);font-size:.68rem}
+.answer p{margin-top:8px;font-family:var(--font-display);font-size:clamp(1.25rem,2.6vw,1.6rem);line-height:1.25;color:var(--steel);text-decoration:line-through;text-decoration-color:rgba(107,104,98,.45);text-decoration-thickness:1.5px}
+.answer.ours{background:var(--deep);box-shadow:none;position:relative}
+.answer.ours .mono{color:var(--pulse)}
+.answer.ours p{color:var(--bone);text-decoration:none;font-style:italic}
+.honest.in .answer.ours{animation:nod 2.8s var(--ease) .8s 2}
+@keyframes nod{0%,60%,100%{box-shadow:0 0 0 0 rgba(255,77,46,.35)}30%{box-shadow:0 0 0 12px rgba(255,77,46,0)}}
 .honest .lead+.lead{margin-top:16px}
 @media(min-width:880px){.honest{grid-template-columns:1fr 1fr}}
 
@@ -274,13 +274,16 @@ input[type=range].scale:focus-visible{outline:none}
 .trait .tick svg{width:14px;height:14px;stroke:#fff;stroke-width:3;fill:none;opacity:0;transform:scale(.4);transition:opacity .2s,transform .3s var(--ease)}
 .trait b{display:block;font-family:var(--font-display);font-size:1.18rem;font-weight:600;color:var(--deep);line-height:1.25}
 .trait span.sub{display:block;font-size:.92rem;color:var(--steel);margin-top:2px}
+.trait{align-items:flex-start}
+.trait .tick{margin-top:2px}
+.trait .why{display:block;max-height:0;opacity:0;font-size:.92rem;line-height:1.5;color:var(--deep);transition:max-height .5s var(--ease),opacity .35s,margin .35s;margin-top:0;overflow:hidden}
+.trait .why::before{content:"";display:block;width:24px;height:2px;background:var(--pulse);border-radius:2px;margin-bottom:8px}
+.trait[aria-pressed="true"] .why{max-height:220px;opacity:1;margin-top:12px}
 .trait[aria-pressed="true"]{box-shadow:inset 0 0 0 2px var(--deep)}
 .trait[aria-pressed="true"] .tick{background:var(--pulse);box-shadow:none}
 .trait[aria-pressed="true"] .tick svg{opacity:1;transform:none}
 .thrive-meta{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-top:22px}
 .verdict{font-family:var(--font-display);font-size:1.2rem;font-style:italic;color:var(--deep);min-height:1.6em}
-.no-sales{font-size:.95rem;color:var(--steel)}
-.no-sales b{color:var(--deep)}
 @media(min-width:760px){.thrive-list{grid-template-columns:1fr 1fr}}
 
 /* How it works */
@@ -405,7 +408,7 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between}
           <div class="side"><b>A cold ad</b><span>every time</span></div>
         </div>
       </div>
-      <blockquote class="big-quote reveal">People don&rsquo;t buy from the person with the best pitch. They buy from the person they trust.<small>From the Connector Hub</small></blockquote>
+      <blockquote class="big-quote reveal">People don&rsquo;t buy from the person with the best pitch. They buy from the person they trust.</blockquote>
     </div>
   </section>
 
@@ -416,11 +419,11 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between}
       <h2 id="h-does" class="reveal">We hand you the leads.<br><em class="it" style="color:var(--pulse)">We do the heavy lifting.</em></h2>
       <ul class="does">
         <li class="reveal"><h3>We give you the leads.</h3><p>High-quality leads: established businesses whose websites are holding them back, researched by our team and handed to you.</p></li>
-        <li class="reveal"><h3>You open the door.</h3><p>A friendly, honest intro. That&rsquo;s the part only you can do.</p></li>
+        <li class="reveal"><h3>You open the door.</h3><p>A friendly, honest intro. That&rsquo;s the part only you can do.</p><p>You&rsquo;re the trusted link between a good business and a team that can help it grow. You never push a product. You connect the owner with our team, and we give them a straight answer about what will actually move their business forward.</p><p>Our guided training prepares you to lead those conversations with confidence, so every introduction you make is one you&rsquo;re proud of.</p></li>
         <li class="reveal us"><h3>We take it from there.</h3><p>Our team handles the scope, the paperwork and the build. Your name stays on it, so your fee finds you.</p></li>
       </ul>
       <div class="nots reveal" aria-label="What you will never have to do">
-        <span>No contracts to write</span><span>No prices to negotiate</span><span>Nothing technical to know</span>
+        <span>No contracts to write</span><span>No prices to negotiate</span><span>No websites to build</span>
       </div>
       <p class="closer-quote reveal">&ldquo;You are not a high-pressure closer. You are a trusted connector who lands the yes.&rdquo;</p>
     </div>
@@ -431,16 +434,15 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between}
     <div class="wrap honest reveal">
       <div>
         <p class="kicker mono"><b>03</b> The honesty edge</p>
-        <div class="stat-1in5" aria-hidden="true">1 <em>in</em> 5</div>
-        <h2 id="h-honest">We tell about 1 in 5 people <em class="it accent">not</em> to build.</h2>
+        <h2 id="h-honest" class="honest-h">When we say yes, <em class="it accent">it means something.</em></h2>
       </div>
       <div>
-        <div class="five" role="img" aria-label="Five circles. Four are told to go ahead, one is told not yet.">
-          <span class="d">GO</span><span class="d">GO</span><span class="d no">NOT<br>YET</span><span class="d">GO</span><span class="d">GO</span>
+        <div class="answers">
+          <div class="answer"><span class="mono">The usual pitch</span><p>&ldquo;Here&rsquo;s our package. Everyone needs it.&rdquo;</p></div>
+          <div class="answer ours"><span class="mono">The Ascend answer</span><p>&ldquo;Here&rsquo;s exactly what will grow your business, and why.&rdquo;</p></div>
         </div>
-        <div class="five-key" aria-hidden="true"><span><i></i>Worth building</span><span><i class="n"></i>Told the truth: not yet</span></div>
-        <p class="lead" style="margin-top:30px">If it isn&rsquo;t the right time for a business, Ascend says so. A team that sometimes says &ldquo;don&rsquo;t buy&rdquo; is trusted far more than one that always says &ldquo;buy.&rdquo;</p>
-        <p class="lead">That&rsquo;s why this never feels salesy. You lend your trust, you never push, and you only ever bring people to a team that will tell them the truth.</p>
+        <p class="lead" style="margin-top:30px">Every owner gets an honest take on what will actually grow their business. No inflated promises, no one-size-fits-all package. When Ascend recommends something, it&rsquo;s because we believe it will work, and owners can feel the difference.</p>
+        <p class="lead">That&rsquo;s why this never feels salesy. You lend your trust, you never push, and every person you introduce gets a team that tells them the truth.</p>
       </div>
     </div>
   </section>
@@ -499,14 +501,13 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between}
       <h2 id="h-who" class="reveal">Become the person who always <em class="it accent">knows a guy.</em></h2>
       <p class="lead reveal" style="margin-top:18px;max-width:44ch">Tap the ones that sound like you.</p>
       <div class="thrive-list" id="traits">
-        <button class="trait reveal" type="button" aria-pressed="false"><span class="tick"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span><b>You always &ldquo;know a guy.&rdquo;</b><span class="sub">Friends ask you who to call. You usually have an answer.</span></span></button>
-        <button class="trait reveal" type="button" aria-pressed="false"><span class="tick"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span><b>You&rsquo;re good with people.</b><span class="sub">Easy to talk to, easy to trust, and you follow through.</span></span></button>
-        <button class="trait reveal" type="button" aria-pressed="false"><span class="tick"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span><b>You&rsquo;re calm and honest.</b><span class="sub">People trust you because you&rsquo;ve never pushed them.</span></span></button>
-        <button class="trait reveal" type="button" aria-pressed="false"><span class="tick"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span><b>You can do one small thing a day.</b><span class="sub">Not a second job. A habit that fits around your life.</span></span></button>
+        <button class="trait reveal" type="button" aria-pressed="false"><span class="tick"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span><b>You always &ldquo;know a guy.&rdquo;</b><span class="sub">Friends ask you who to call. You usually have an answer.</span><span class="why">That instinct is the whole job. Owners already trust your recommendations, so an intro from you lands warmer than any ad ever could.</span></span></button>
+        <button class="trait reveal" type="button" aria-pressed="false"><span class="tick"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span><b>You&rsquo;re good with people.</b><span class="sub">Easy to talk to, easy to trust, and you follow through.</span><span class="why">We bring the leads; your warmth is what turns a name on a list into a real conversation, and a conversation into a yes.</span></span></button>
+        <button class="trait reveal" type="button" aria-pressed="false"><span class="tick"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span><b>You&rsquo;re calm and honest.</b><span class="sub">People trust you because you&rsquo;ve never pushed them.</span><span class="why">Honesty is our edge. Owners can tell when someone is pushing, and they lean in when someone isn&rsquo;t. You&rsquo;re exactly who we want opening doors.</span></span></button>
+        <button class="trait reveal" type="button" aria-pressed="false"><span class="tick"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span><b>You can do one small thing a day.</b><span class="sub">Not a second job. A habit that fits around your life.</span><span class="why">This runs on rhythm, not hustle. One intro a day becomes a handful of yeses, and those yeses become real monthly income.</span></span></button>
       </div>
       <div class="thrive-meta reveal">
         <p class="verdict" id="verdict" aria-live="polite"></p>
-        <p class="no-sales"><b>No sales background required.</b> No big network required either. We bring the leads.</p>
       </div>
     </div>
   </section>
@@ -571,11 +572,11 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between}
    ============================================================ */
 const CONFIG = {
   callUrl: "#",                    // TODO: Jessi's booking link (Calendly or similar)
-  welcomeLine: "Hey! We’re so glad you made it! Someone thought of you for this, and we think they’re right.",
+  welcomeLine: "Hey, we’re so glad you made it. Someone thought you’d be great for this, and we think they’re right.",
   welcomeSpeaker: "Jessi, Ascend",
   chimeSeconds: 4.4,               // length of the chime inside welcome-sequence.mp3
   voiceStartsAt: 4.55,             // where Jessi starts speaking in welcome-sequence.mp3
-  voiceSeconds: 4.92               // length of Jessi's line
+  voiceSeconds: 4.88               // length of Jessi's line
 };
 
 /* ---------- Light analytics: Plausible or GA if present, otherwise console ---------- */
