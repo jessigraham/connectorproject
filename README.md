@@ -11,6 +11,7 @@ index.html                         the page (HTML, CSS, JS inline)
 assets/welcome-sequence.mp3        what the page plays: chime + gap + Jessi, one file (9.5s)
 assets/brand-chime-cinematic.mp3   source: entry chime (4.4s)
 assets/welcome-jessi.mp3           source: Jessi's welcome line (ElevenLabs, Jessi Voice 1, 5.8s, take A + enthusiastic "Hey!" + lifted ending)
+assets/outro-jessi.mp3             closing line, plays when "Want in?" scrolls into view (7.7s)
 assets/og.png                      link preview image, 1200x630
 ```
 

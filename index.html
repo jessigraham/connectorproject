@@ -161,6 +161,9 @@ html.arrived .word,html.playing .word{animation:rise 1s var(--ease) forwards}
 .caption{font-family:var(--font-display);font-style:italic;font-size:1.06rem;line-height:1.4;color:var(--deep)}
 .caption span{opacity:.18;transition:opacity .25s}
 .caption span.lit{opacity:1}
+.outro{margin-top:30px;background:rgba(245,241,232,.07);box-shadow:inset 0 0 0 1px rgba(245,241,232,.16)}
+.outro .caption{color:var(--bone)}
+.outro .caption .who{color:rgba(245,241,232,.55)}
 .caption .who{display:block;font-family:var(--font-mono);font-style:normal;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--steel);margin-top:4px;opacity:1}
 
 /* ---------- Sections ---------- */
@@ -537,6 +540,10 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between}
       <p class="kicker mono reveal"><b>07</b> Your next step</p>
       <h2 id="h-cta" class="reveal">Want <em>in?</em></h2>
       <p class="lead reveal">If you made it this far, you&rsquo;re curious. Trust that. Schedule a direct call with our team: a real conversation, no pressure. If it&rsquo;s a fit, we&rsquo;ll walk you through the full demo.</p>
+      <div class="welcome outro" id="outro" aria-live="polite">
+        <div class="wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+        <p class="caption" id="outroCaption"></p>
+      </div>
       <div class="cta-row reveal">
         <a class="btn btn-pulse js-call" data-where="cta" href="#">Schedule a call <span class="arr" aria-hidden="true">&rarr;</span></a>
       </div>
@@ -741,6 +748,65 @@ function track(name, props){
   } else {
     if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", attempt); else attempt();
   }
+
+  /* ---------- Closing line: plays once when "Want in?" comes into view ---------- */
+  const OUTRO = {
+    src: "assets/outro-jessi.mp3",
+    line: "If you\u2019ve made it this far, we\u2019d love to hear from you. Schedule a call to start connecting today!",
+    seconds: 7.66
+  };
+  const outroBox = document.getElementById("outro");
+  const outroCap = document.getElementById("outroCaption");
+  outroCap.innerHTML = OUTRO.line.split(" ").map(w => "<span>" + w + "</span>").join(" ") +
+    '<span class="who">' + CONFIG.welcomeSpeaker + "</span>";
+  const outroSpans = [...outroCap.querySelectorAll("span:not(.who)")];
+  const outroLit = f => {
+    const n = Math.ceil(Math.max(0, Math.min(1, f)) * outroSpans.length);
+    outroSpans.forEach((sp, i) => sp.classList.toggle("lit", i < n));
+  };
+  function outroOnTimer(){
+    outroBox.classList.add("show", "speaking");
+    const t0 = performance.now();
+    const tick = now => {
+      const f = (now - t0) / 1000 / OUTRO.seconds;
+      outroLit(f + 0.06);
+      if (f < 1) requestAnimationFrame(tick); else outroBox.classList.remove("speaking");
+    };
+    requestAnimationFrame(tick);
+  }
+  function outroFollowAudio(){
+    outroBox.classList.add("show", "speaking");
+    const step = () => {
+      const t = seq.currentTime;
+      outroLit(t / OUTRO.seconds + 0.06);
+      if (seq.ended || t >= OUTRO.seconds){ outroLit(1); outroBox.classList.remove("speaking"); return; }
+      requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+  let outroDone = false;
+  function playOutro(){
+    if (outroDone) return; outroDone = true;
+    track("Outro", {sound: !muted});
+    if (muted || !seqOk){ outroOnTimer(); return; }
+    // Reuse the player the visitor already started. Browsers, iPhone Safari included, let an
+    // already-played player speak again without another tap. If one refuses, show the caption.
+    seq.pause(); seq.src = OUTRO.src; seq.currentTime = 0;
+    const p = seq.play();
+    if (p && p.then) p.then(outroFollowAudio).catch(outroOnTimer); else outroFollowAudio();
+  }
+  // Never talk over the welcome: if it is still playing, wait for it to finish.
+  function whenWelcomeDone(fn){
+    if (!seq.paused && !seq.ended && seq.currentSrc.indexOf("welcome-sequence") > -1)
+      seq.addEventListener("ended", () => setTimeout(fn, 400), {once: true});
+    else fn();
+  }
+  const outroIO = new IntersectionObserver(entries => {
+    entries.forEach(en => {
+      if (en.isIntersecting){ outroIO.disconnect(); setTimeout(() => whenWelcomeDone(playOutro), 500); }
+    });
+  }, {threshold: .35});
+  outroIO.observe(document.getElementById("cta"));
 
   /* ---------- Header + reveals ---------- */
   const top = document.getElementById("top");
